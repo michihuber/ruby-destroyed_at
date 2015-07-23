@@ -33,10 +33,12 @@ ActiveRecord::Base.connection.execute(%{CREATE TABLE categories (id INTEGER PRIM
 ActiveRecord::Base.connection.execute(%{CREATE TABLE categorizations (id INTEGER PRIMARY KEY, category_id INTEGER, post_id INTEGER);})
 ActiveRecord::Base.connection.execute(%{CREATE TABLE comments (id INTEGER PRIMARY KEY, commenter_id INTEGER, post_id INTEGER, destroyed_at DATETIME);})
 ActiveRecord::Base.connection.execute(%{CREATE TABLE commenters (id INTEGER PRIMARY KEY, destroyed_at DATETIME);})
+ActiveRecord::Base.connection.execute(%{CREATE TABLE emojis (id INTEGER PRIMARY KEY, private_message_id INTEGER, destroyed_at DATETIME);})
 ActiveRecord::Base.connection.execute(%{CREATE TABLE images (id INTEGER PRIMARY KEY, post_id INTEGER);})
 ActiveRecord::Base.connection.execute(%{CREATE TABLE posts (id INTEGER PRIMARY KEY, author_id INTEGER, destroyed_at DATETIME);})
 ActiveRecord::Base.connection.execute(%{CREATE TABLE people (id INTEGER PRIMARY KEY);})
 ActiveRecord::Base.connection.execute(%{CREATE TABLE pets (id INTEGER PRIMARY KEY, person_id INTEGER);})
+ActiveRecord::Base.connection.execute(%{CREATE TABLE private_messages (id INTEGER PRIMARY KEY, commenter_id INTEGER);})
 
 class Author < ActiveRecord::Base
   has_many :posts
@@ -76,6 +78,17 @@ class Commenter < ActiveRecord::Base
   include DestroyedAt
   has_many :comments, dependent: :destroy
   has_many :posts, through: :comments
+  has_many :private_messages, dependent: :destroy
+end
+
+class PrivateMessage < ActiveRecord::Base
+  belongs_to :commenter
+  has_many :emojis, dependent: :destroy
+end
+
+class Emoji < ActiveRecord::Base
+  include DestroyedAt
+  belongs_to :private_message
 end
 
 class Post < ActiveRecord::Base

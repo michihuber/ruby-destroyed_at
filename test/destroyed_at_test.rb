@@ -81,6 +81,13 @@ describe 'destroying an activerecord instance' do
     Author.count.must_equal 0
     Avatar.count.must_equal 1
   end
+
+  it "destroys grand children when children are deleted" do
+    emoji = Emoji.create!
+    pm = PrivateMessage.create!(emojis: [emoji])
+    commenter = Commenter.create!(private_messages: [pm])
+    commenter.destroy
+  end
 end
 
 describe 'restoring an activerecord instance' do
